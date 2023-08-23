@@ -3,13 +3,46 @@
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Page Title</title>
+    <title>login</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <style>
+        body {text-align: center; background-color: lightseagreen; color: black;}
+    </style>
+   
+<body>
+
+    <h1>check your earlier recipes here!</h1>
+
+    <div id="authForm">
+        <h2>Sign in</h2>
+        <label for="userEmail">Email:</label>
+        <input type="email" placeholder="email" id="userEmail"/>
+        <label for="password">Password: </label>
+        <input type="password" pacehoder="password" id="password"/>
+        
+        <button id="signIn">Sign In!</button>
+        <button id="signUp">Sign Up!</button>
+
+
+    </div>
+
+    <div id="secretContent">
+        
+        <h3>This is top seceret information that you can only see if</h3>
+        <button id="userSignOut">Sign out!</button>
+    
+    </div>
+    
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js';
-        import { getAuth } from 'https://www.gstatic.com/firebasejs/10.3.0/firebase-auth.js';
+        import { 
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            onAuthStateChanged,
+            signOut 
+        } from 'https://www.gstatic.com/firebasejs/10.3.0/firebase-auth.js';
         
         // TODO: Add SDKs for Firebase products that you want to use
         // https://firebase.google.com/docs/web/setup#available-libraries
@@ -26,14 +59,78 @@
       
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const auth= new getAuth(app);
+        const auth= getAuth(app);
+
+        const userEmail=document.querySelector("#userEmail");
+        const password=document.querySelector("#password");
+        const authForm=document.querySelector("#authForm");
+        const secretContent=document.querySelector("#secretContent");
+        const signIn=document.querySelector("#signIn");
+        const signUp=document.querySelector("#signUp");
+        const userSignOutButton=document.querySelector("#userSignOut");
+
+        secretContent.style.display='none'
+
+        const userSignUp =async()=>{
+            const signUpEmail=userEmail.value
+            const signUpPassword=password.value
+            createUserWithEmailAndPassword(auth, signUpEmail, signUpPassword)
+            .then((userCredential)=>{
+                const user=userCredential.user;
+                console.log(user);
+                alert("your account has been create!")
+            })
+            .catch((error)=>{
+                const errorCode=error.code
+                const errorMessage =error.message
+                console.log(errorCode + errorMessage)
+            })
+        }
+
+        
+
+        const userSignIn =async()=>{
+            const signInEmail=userEmail.value
+            const signInPassword=password.value
+            signInWithEmailAndPassword(auth, signInEmail, signInPassword)
+            .then((userCredential)=>{
+                const user=userCredential.user;
+                alert("you have signed in successfully!")
+            })
+            .catch((error)=>{
+                const errorCode=error.code
+                const errorMessage =error.message
+                console.log(errorCode + errorMessage)
+            })
+        }
+
+        const checkAuthState=async()=>{
+            onAuthStateChanged(auth, user=>{
+                if(user){
+                    authForm.style.display = 'none';
+                    secretContent.style.display = 'block';
+
+                }else{
+                    authForm.style.display = 'block';
+                    secretContent.style.display = 'none';
+                }
+            })
+        }
+
+        const userSignOut= async()=>{
+            await signOut(auth);
+        }
+
+        checkAuthState();
+        signUp.addEventListener('click', userSignUp)
+        signIn.addEventListener('click', userSignIn);
+        userSignOutButton.addEventListener('click', userSignOut)
+
+
+
 
       </script>
       
 </head>
-<body>
-
-    <h1>check your earlier recipes here!</h1>
-    
 </body>
 </html>
